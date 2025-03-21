@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "./font-roboto.css";
+
+@plugin "daisyui" {
+    themes: cupcake --default, dark --prefersdark;
+}
+
+body {
+    font-family: "Roboto", serif;
+}
