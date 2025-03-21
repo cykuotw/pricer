@@ -1,21 +1,14 @@
-import { API_URL } from "./configs/config";
+import Chart from "./components/chart";
+import ServerTime from "./components/serverTime";
+import TickerSelector from "./components/tickerSelector";
 
 function App() {
     return (
-        <>
-            <div className="text-xl text-red-500">hello from tailwindcss</div>
-
-            <div>{API_URL}</div>
-
-            <button className="btn btn-neutral">Neutral</button>
-            <button className="btn btn-primary">Primary</button>
-            <button className="btn btn-secondary">Secondary</button>
-            <button className="btn btn-accent">Accent</button>
-            <button className="btn btn-info">Info</button>
-            <button className="btn btn-success">Success</button>
-            <button className="btn btn-warning">Warning</button>
-            <button className="btn btn-error">Error</button>
-        </>
+        <div className="flex flex-col items-center py-3">
+            <ServerTime></ServerTime>
+            <TickerSelector></TickerSelector>
+            <Chart></Chart>
+        </div>
     );
 }
 
