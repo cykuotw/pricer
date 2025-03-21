@@ -1,7 +1,12 @@
+import { API_URL } from "./configs/config";
+
 function App() {
     return (
         <>
             <div className="text-xl text-red-500">hello from tailwindcss</div>
+
+            <div>{API_URL}</div>
+
             <button className="btn btn-neutral">Neutral</button>
             <button className="btn btn-primary">Primary</button>
             <button className="btn btn-secondary">Secondary</button>
