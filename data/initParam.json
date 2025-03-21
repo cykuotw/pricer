@@ -1,0 +1,17 @@
+{
+    "AAPL-US": {
+        "open": 210,
+        "drift": 0.0002,
+        "volatility": 0.05
+    },
+    "MSFT-US": {
+        "open": 380,
+        "drift": 0.0001,
+        "volatility": 0.03
+    },
+    "GOOGL-US": {
+        "open": 160,
+        "drift": 0.0003,
+        "volatility": 0.04
+    }
+}
