@@ -1,9 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+	"pricing-app/api"
+	"pricing-app/config"
 )
 
 func main() {
-	fmt.Println("starter")
+	apiServer := api.NewAPIServer(config.Envs.BackendURL)
+
+	if err := apiServer.Run(); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }
