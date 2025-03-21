@@ -10,6 +10,8 @@ type Config struct {
 	Mode       string
 	BackendURL string
 	APIPath    string
+
+	CORSFrontendOrigin string
 }
 
 var Envs = initConfig()
@@ -21,6 +23,8 @@ func initConfig() Config {
 		Mode:       getEnv("MODE", "debug"),
 		BackendURL: getEnv("BACKEND_URL", "localhost:8000"),
 		APIPath:    getEnv("API_URL", ""),
+
+		CORSFrontendOrigin: getEnv("CORS_FRONTEND_ORIGIN", "localhost:8050"),
 	}
 }
 

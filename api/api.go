@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"pricing-app/config"
+	"pricing-app/services/middleware"
 	"pricing-app/services/pricing"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,7 @@ func (s *APIServer) Run() error {
 	// create router, setup middle, define group
 	router := gin.New()
 	router.Use(gin.Logger())
+	router.Use(middleware.CORSMiddleware())
 
 	subRouter := router.Group(config.Envs.APIPath)
 
