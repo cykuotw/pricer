@@ -1,23 +1,22 @@
 package pricing
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
+	controller *Contoller
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(controller *Contoller) *Handler {
+	return &Handler{
+		controller: controller,
+	}
 }
 
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
-	router.GET("/", h.handleHome)
-}
+	router.GET("/tickers", h.hGetTickerList)
 
-func (h *Handler) handleHome(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusOK, gin.H{"msg": "home"})
+	router.GET("/config/:ticker", h.hGetConfig)
+	router.PUT("config", h.hPostConfig)
 }

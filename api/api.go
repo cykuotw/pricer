@@ -22,15 +22,25 @@ func NewAPIServer(addr string) *APIServer {
 }
 
 func (s *APIServer) Run() error {
-	gin.SetMode("debug")
+	// load market config
+	marketConfig, err := config.LoadMarketConfig("data/initParam.json")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	// set debug/release mode
+	gin.SetMode(config.Envs.Mode)
+
+	// create router, setup middle, define group
 	router := gin.New()
 	router.Use(gin.Logger())
 
 	subRouter := router.Group(config.Envs.APIPath)
 
-	homeHandler := pricing.NewHandler()
-	homeHandler.RegisterRoutes(subRouter)
+	// create controller & handler with dependency injection
+	controller := pricing.NewController(marketConfig)
+	handler := pricing.NewHandler(controller)
+	handler.RegisterRoutes(subRouter)
 
 	log.Println("API Server Listening on", s.addr)
 
