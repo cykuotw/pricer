@@ -21,4 +21,5 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.PUT("config", h.hPostConfig)
 
 	router.GET("/stream/server-time", h.hStreamServerTime)
+	router.GET("/stream/update-price", h.hStreamUpdatePrice)
 }
