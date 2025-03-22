@@ -20,9 +20,9 @@ interface UpdateConfigData {
 
 export default function TickerSelector() {
     const [tickerList, setTickerList] = useState<string[]>([]);
-    const [selectedTicker, setSelectedTicker] = useState("");
-    const [drift, setDrift] = useState("");
-    const [volatility, setVlatility] = useState("");
+    const [selectedTicker, setSelectedTicker] = useState<string>("");
+    const [drift, setDrift] = useState<string>("0");
+    const [volatility, setVlatility] = useState<string>("0");
 
     const DRIFT_MULTIPLE = 10000;
     const VOLATILITY_MULTIPLE = 100;
@@ -67,7 +67,8 @@ export default function TickerSelector() {
             const result = await response.status;
 
             if (result !== 201) {
-                console.warn("udpate fail");
+                const msg = await response.json();
+                console.warn("udpate fail:", msg.message);
             }
         };
 
@@ -100,7 +101,7 @@ export default function TickerSelector() {
                 </select>
                 <div className="flex flex-col space-y-0.5 max-w-4/5">
                     <label className="input">
-                        <span>Drift:</span>
+                        <span>Drift (μ, mu):</span>
                         <input
                             type="number"
                             className="input input-neutral input-ghost text-right"
@@ -112,7 +113,7 @@ export default function TickerSelector() {
                         </span>
                     </label>
                     <label className="input">
-                        <span>Volatility:</span>
+                        <span>Volatility (σ, sigma):</span>
                         <input
                             type="number"
                             className="input input-neutral input-ghost text-right"
