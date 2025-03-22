@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { API_URL } from "../configs/config";
 
 export default function ServerTime() {
-    const [serverTime, setServerTime] = useState<string>("---");
+    const [serverTime, setServerTime] = useState<string>("connecting...");
 
     useEffect(() => {
         const es = new EventSource(`${API_URL}/stream/server-time`);
@@ -25,6 +25,7 @@ export default function ServerTime() {
 
         es.onerror = (err) => {
             console.error("EventSource failed:", err);
+            setServerTime("disconnected, please refresh to reconnect.");
             es.close();
         };
 
