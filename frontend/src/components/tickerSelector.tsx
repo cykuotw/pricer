@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { API_URL } from "../configs/config";
+import { useTicker } from "../contexts/SelectedTickerContext";
 
 interface ConfigData {
     open: number;
@@ -19,8 +20,9 @@ interface UpdateConfigData {
 }
 
 export default function TickerSelector() {
+    const { selectedTicker, setSelectedTicker } = useTicker();
+
     const [tickerList, setTickerList] = useState<string[]>([]);
-    const [selectedTicker, setSelectedTicker] = useState<string>("");
     const [drift, setDrift] = useState<string>("0");
     const [volatility, setVlatility] = useState<string>("0");
 
