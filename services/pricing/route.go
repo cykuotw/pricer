@@ -19,4 +19,6 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 
 	router.GET("/config/:ticker", h.hGetConfig)
 	router.PUT("config", h.hPostConfig)
+
+	router.GET("/stream/server-time", h.hStreamServerTime)
 }
