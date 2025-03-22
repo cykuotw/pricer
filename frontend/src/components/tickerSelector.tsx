@@ -57,7 +57,12 @@ export default function TickerSelector() {
     }, [selectedTicker]);
 
     useEffect(() => {
-        if (drift.length === 0 || volatility.length === 0) return;
+        if (
+            drift.length === 0 ||
+            volatility.length === 0 ||
+            selectedTicker.length === 0
+        )
+            return;
 
         const fetchUpdateConfig = async (payload: UpdateConfigData) => {
             const response = await fetch(`${API_URL}/config`, {
