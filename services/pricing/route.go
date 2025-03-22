@@ -20,6 +20,8 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.GET("/config/:ticker", h.hGetConfig)
 	router.PUT("config", h.hPostConfig)
 
+	router.GET("/prices/:ticker", h.hGetPrices)
+
 	router.GET("/stream/server-time", h.hStreamServerTime)
 	router.GET("/stream/update-price", h.hStreamUpdatePrice)
 }
