@@ -1,7 +1,6 @@
 package pricing
 
 import (
-	"fmt"
 	"math"
 	"math/rand/v2"
 	"pricing-app/config"
@@ -28,6 +27,8 @@ type Contoller struct {
 func NewController(cfg config.MarketConfig) *Contoller {
 	openIntervalInMinute := int(MARKET_CLOSE_TIME.Sub(MARKET_OPEN_TIME).Minutes())
 	now := time.Now()
+	// now = time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
+	now = time.Date(0, 1, 1, 12, 0, 0, 0, time.Local) // debug
 
 	// initialize buffer
 	buffer := make(map[string][]decimal.Decimal)
@@ -35,12 +36,13 @@ func NewController(cfg config.MarketConfig) *Contoller {
 	for ticker, config := range cfg {
 		buffer[ticker] = make([]decimal.Decimal, openIntervalInMinute)
 		buffer[ticker][0] = decimal.NewFromUint64(config.Open)
-		tails[ticker] = 0
+		tails[ticker] = 1
 	}
 
 	// generate prices if engine start within opening hour
 	if now.After(MARKET_OPEN_TIME) && now.Before(MARKET_CLOSE_TIME) {
 		var wg sync.WaitGroup
+		var m sync.Mutex
 		currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
 
 		for ticker, conf := range cfg {
@@ -50,13 +52,13 @@ func NewController(cfg config.MarketConfig) *Contoller {
 			// just in case there are too many ticker to update
 			go func(t string, c config.StockConfig) {
 				for i := 1; i <= currTail; i++ {
+					m.Lock()
 					prevPrice := buffer[t][i-1]
 					buffer[t][i] = simulateNextPrice(c, prevPrice)
-					tails[t] = i
+					tails[t] = i + 1
+					m.Unlock()
 				}
 
-				fmt.Println(t)
-				fmt.Println(buffer[t])
 			}(ticker, conf)
 		}
 	}
