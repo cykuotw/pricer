@@ -1,7 +1,6 @@
 package pricing
 
 import (
-	"fmt"
 	"net/http"
 	"pricing-app/services"
 	"strings"
@@ -9,6 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shopspring/decimal"
 )
+
+var DRIFT_MULTIPLE = decimal.NewFromInt32(10000)
+var VOLATILITY_MULTIPLE = decimal.NewFromInt32(100)
 
 func (h *Handler) hGetConfig(c *gin.Context) {
 	ticker := strings.ToUpper(c.Param("ticker"))
@@ -18,7 +20,12 @@ func (h *Handler) hGetConfig(c *gin.Context) {
 		return
 	}
 
-	services.WriteJSON(c, http.StatusOK, gin.H{"ticker": ticker, "config": config})
+	shiftedConfig := config
+
+	shiftedConfig.Drift = shiftedConfig.Drift.Mul(DRIFT_MULTIPLE)
+	shiftedConfig.Volatility = shiftedConfig.Volatility.Mul(VOLATILITY_MULTIPLE)
+
+	services.WriteJSON(c, http.StatusOK, gin.H{"ticker": ticker, "config": shiftedConfig})
 }
 
 func (h *Handler) hPostConfig(c *gin.Context) {
@@ -34,7 +41,6 @@ func (h *Handler) hPostConfig(c *gin.Context) {
 		return
 	}
 
-	fmt.Println(h.controller.config)
 	_, ok := h.controller.config[payload.Ticker]
 	if !ok {
 		services.WriteJSON(c, http.StatusBadRequest, gin.H{"message": "invalid ticker"})
@@ -42,8 +48,8 @@ func (h *Handler) hPostConfig(c *gin.Context) {
 	}
 
 	config := h.controller.config[payload.Ticker]
-	config.Drift = payload.Drift
-	config.Volatility = payload.Volatility
+	config.Drift = payload.Drift.Div(DRIFT_MULTIPLE)
+	config.Volatility = payload.Volatility.Div(VOLATILITY_MULTIPLE)
 	h.controller.config[payload.Ticker] = config
 
 	services.WriteJSON(c, http.StatusCreated, gin.H{"message": "success"})
