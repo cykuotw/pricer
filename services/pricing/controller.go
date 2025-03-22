@@ -26,9 +26,7 @@ type Contoller struct {
 
 func NewController(cfg config.MarketConfig) *Contoller {
 	openIntervalInMinute := int(MARKET_CLOSE_TIME.Sub(MARKET_OPEN_TIME).Minutes())
-	now := time.Now()
-	// now = time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
-	now = time.Date(0, 1, 1, 12, 0, 0, 0, time.Local) // debug
+	now := getCurrentTime()
 
 	// initialize buffer
 	buffer := make(map[string][]decimal.Decimal)
@@ -40,7 +38,7 @@ func NewController(cfg config.MarketConfig) *Contoller {
 	}
 
 	// generate prices if engine start within opening hour
-	if now.After(MARKET_OPEN_TIME) && now.Before(MARKET_CLOSE_TIME) {
+	if checkMarketOpen(now) {
 		var wg sync.WaitGroup
 		var m sync.Mutex
 		currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
@@ -68,6 +66,18 @@ func NewController(cfg config.MarketConfig) *Contoller {
 		historyBuffer:     buffer,
 		historyBufferTail: tails,
 	}
+}
+
+func checkMarketOpen(now time.Time) bool {
+	return now.After(MARKET_OPEN_TIME) && now.Before(MARKET_CLOSE_TIME)
+}
+
+func getCurrentTime() time.Time {
+	now := time.Now()
+	// now = time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
+	now = time.Date(0, 1, 1, 12, 0, 0, 0, time.Local) // debug
+
+	return now
 }
 
 func simulateNextPrice(config config.StockConfig, prevPrice decimal.Decimal) decimal.Decimal {

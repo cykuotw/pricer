@@ -11,6 +11,14 @@ import (
 )
 
 func (h *Handler) hGetPrices(c *gin.Context) {
+	currTime := getCurrentTime()
+	isOpen := checkMarketOpen(currTime)
+
+	if !isOpen {
+		services.WriteJSON(c, http.StatusForbidden, gin.H{"message": "Market is closed. Available between 09:30 and 16:00."})
+		return
+	}
+
 	ticker := strings.ToUpper(c.Param("ticker"))
 
 	_, ok := h.controller.config[ticker]
