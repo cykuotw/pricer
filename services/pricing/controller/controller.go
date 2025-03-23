@@ -29,27 +29,29 @@ func NewController(cfg config.MarketConfig) *Contoller {
 	}
 
 	// generate prices if engine start within opening hour
-	if checkMarketOpen(now) {
-		var wg sync.WaitGroup
-		var m sync.Mutex
-		currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
+	currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
+	if currTail > openIntervalInMinute {
+		currTail = openIntervalInMinute - 1
+	}
 
-		for ticker, conf := range cfg {
-			wg.Add(1)
+	var wg sync.WaitGroup
+	var m sync.Mutex
 
-			// optimized with multi-threading
-			// just in case there are too many ticker to update
-			go func(t string, c config.StockConfig) {
-				for i := 1; i <= currTail; i++ {
-					m.Lock()
-					prevPrice := buffer[t][i-1]
-					buffer[t][i] = simulateNextPrice(c, prevPrice)
-					tails[t] = i + 1
-					m.Unlock()
-				}
+	for ticker, conf := range cfg {
+		wg.Add(1)
 
-			}(ticker, conf)
-		}
+		// optimized with multi-threading
+		// just in case there are too many ticker to update
+		go func(t string, c config.StockConfig) {
+			for i := 1; i <= currTail; i++ {
+				m.Lock()
+				prevPrice := buffer[t][i-1]
+				buffer[t][i] = simulateNextPrice(c, prevPrice)
+				tails[t] = i + 1
+				m.Unlock()
+			}
+
+		}(ticker, conf)
 	}
 
 	return &Contoller{
