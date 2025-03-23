@@ -5,7 +5,7 @@ import { TickerProvider } from "./contexts/SelectedTickerContext";
 
 function App() {
     return (
-        <div className="flex flex-col items-center py-3">
+        <div className="flex flex-col items-center my-3 mx-5 space-y-3">
             <ServerTime></ServerTime>
 
             <TickerProvider>

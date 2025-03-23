@@ -33,13 +33,33 @@ interface Prices {
     times: string[];
 }
 
+interface LatestPrice {
+    price: string;
+    time: string;
+    ticker: string;
+}
+
+interface MarketOpen {
+    isopen: boolean;
+}
+
 export default function Chart() {
     const { selectedTicker } = useTicker();
 
+    const [isMarketOpen, setIsMarketOpen] = useState<boolean>(false);
     const [prices, setPrices] = useState<number[]>([]);
     const [times, setTimes] = useState<string[]>([]);
 
     useEffect(() => {
+        const checkMarketOpen = async () => {
+            const response = await fetch(`${API_URL}/check-open`, {
+                method: "GET",
+            });
+
+            const marketOpen: MarketOpen = await response.json();
+            setIsMarketOpen(marketOpen.isopen);
+        };
+
         const fetchHistorPrices = async () => {
             if (selectedTicker.length === 0) return;
 
@@ -69,7 +89,41 @@ export default function Chart() {
             );
         };
 
+        checkMarketOpen();
         fetchHistorPrices();
+    }, [selectedTicker]);
+
+    useEffect(() => {
+        if (selectedTicker.length === 0 || !isMarketOpen) return;
+
+        const es = new EventSource(
+            `${API_URL}/stream/update-price/${selectedTicker}`
+        );
+
+        es.onmessage = (e) => {
+            const data: LatestPrice = JSON.parse(e.data);
+
+            if (data.ticker != selectedTicker) return;
+
+            setPrices((prev) => [...prev, parseFloat(data.price)]);
+            setTimes((prev) => [
+                ...prev,
+                new Date(data.time).toLocaleTimeString("en-CA", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                }),
+            ]);
+        };
+
+        es.onerror = (err) => {
+            console.error("EventSource failed:", err);
+            es.close();
+        };
+
+        return () => {
+            es.close();
+        };
     }, [selectedTicker]);
 
     const data: ChartData<"line"> = {
@@ -102,7 +156,13 @@ export default function Chart() {
 
     return (
         <>
-            <h1>{selectedTicker.length !== 0 ? selectedTicker : "---"}</h1>
+            <h1>
+                {!isMarketOpen
+                    ? "CLOSED"
+                    : selectedTicker.length !== 0
+                    ? selectedTicker
+                    : "---"}
+            </h1>
             <Line data={data} options={options} />
         </>
     );
