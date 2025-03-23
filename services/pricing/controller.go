@@ -25,7 +25,7 @@ type Contoller struct {
 }
 
 func NewController(cfg config.MarketConfig) *Contoller {
-	openIntervalInMinute := int(MARKET_CLOSE_TIME.Sub(MARKET_OPEN_TIME).Minutes())
+	openIntervalInMinute := 1 + int(MARKET_CLOSE_TIME.Sub(MARKET_OPEN_TIME).Minutes())
 	now := getCurrentTime()
 
 	// initialize buffer
@@ -74,8 +74,8 @@ func checkMarketOpen(now time.Time) bool {
 
 func getCurrentTime() time.Time {
 	now := time.Now()
-	// now = time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
-	now = time.Date(0, 1, 1, 12, 0, 0, 0, time.Local) // debug
+	now = time.Date(0, 1, 1, now.Hour(), now.Minute(), now.Second(), 0, time.Local)
+	// now = time.Date(0, 1, 1, 12, 0, 0, 0, time.Local) // debug
 
 	return now
 }
