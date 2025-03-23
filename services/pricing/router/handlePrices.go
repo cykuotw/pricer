@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"pricing-app/services"
@@ -9,17 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shopspring/decimal"
 )
 
 func (h *Handler) hGetPrices(c *gin.Context) {
-	now := time.Now()
-	isOpen := h.controller.CheckMarketOpen(now)
-
-	if !isOpen {
-		services.WriteJSON(c, http.StatusForbidden, gin.H{"message": "Market is closed. Available between 09:30 and 16:00."})
-		return
-	}
-
 	ticker := strings.ToUpper(c.Param("ticker"))
 
 	exist := h.controller.CheckTickerExist(ticker)
@@ -29,7 +23,7 @@ func (h *Handler) hGetPrices(c *gin.Context) {
 	}
 
 	// update the price to the latest time (minute)
-	h.controller.UpdatePriceToLatestMin(ticker, now)
+	h.controller.UpdatePriceToLatestMin(ticker, time.Now())
 
 	// prepare response data
 	prices, _ := h.controller.GetHistoryData(ticker)
@@ -44,14 +38,37 @@ func (h *Handler) hGetPrices(c *gin.Context) {
 }
 
 func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
+	ticker := strings.ToUpper(c.Param("ticker"))
+	if exist := h.controller.CheckTickerExist(ticker); !exist {
+		msg := fmt.Sprintf("data: ticker not exist\n\n")
+		_, err := fmt.Fprintf(c.Writer, msg)
+		if err != nil {
+			return
+		}
+
+		c.Writer.Flush()
+		return
+	}
+
 	c.Writer.Header().Set("Content-Type", "text/event-stream")
 	c.Writer.Header().Set("Cache-Control", "no-cache")
 	c.Writer.Header().Set("Connection", "keep-alive")
 
-	var sendData = func(t time.Time) {
-		fmt.Printf("%s\n", t.Format(time.RFC3339Nano))
-		msg := fmt.Sprintf("data: %s\n\n", time.Now().Format(time.RFC3339Nano))
-		_, err := fmt.Fprintf(c.Writer, msg)
+	var updateData = func(ticker string, now time.Time) decimal.Decimal {
+		latestPrice, _ := h.controller.UpdatePrice(ticker, now)
+		return latestPrice
+	}
+
+	// var sendData = func(t time.Time) {
+	var sendData = func(ticker string, now time.Time, latestPrice decimal.Decimal) {
+		// fmt.Printf("%s\n", t.Format(time.RFC3339Nano))
+		jsonData, err := json.Marshal(gin.H{"ticker": ticker, "time": now, "price": latestPrice})
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		msg := fmt.Sprintf("data: %s\n\n", jsonData)
+		_, err = fmt.Fprintf(c.Writer, msg)
 		if err != nil {
 			// client disconnect
 			fmt.Printf("client disconnected: %s\n", err)
@@ -67,20 +84,24 @@ func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
 	// align the timer to next full minute, for example 13:21:00
 	select {
 	case <-time.After(delay):
-		sendData(time.Now())
+		now := time.Now()
+		latestPrice := updateData(ticker, now)
+		sendData(ticker, now, latestPrice)
 
 	case <-c.Request.Context().Done():
 		fmt.Println("client close connection")
 		return
 	}
 
-	ticker := time.NewTicker(1 * time.Minute)
-	defer ticker.Stop()
+	timeTicker := time.NewTicker(1 * time.Minute)
+	defer timeTicker.Stop()
 
 	for {
 		select {
-		case t := <-ticker.C:
-			sendData(t)
+		case t := <-timeTicker.C:
+			latestPrice := updateData(ticker, t)
+			sendData(ticker, t, latestPrice)
+			// sendData(t)
 
 		case <-c.Request.Context().Done():
 			fmt.Println("client close connection")
