@@ -1,0 +1,11 @@
+# Build Go app
+FROM golang:1.23.3 AS builder
+
+WORKDIR /go/src/pricing-app
+
+COPY . .
+RUN go mod download
+RUN make build
+
+EXPOSE 8090
+CMD [ "./bin/pricer" ]
