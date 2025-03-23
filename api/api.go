@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"pricing-app/config"
 	"pricing-app/services/middleware"
-	"pricing-app/services/pricing"
+	priceController "pricing-app/services/pricing/controller"
+	priceRouter "pricing-app/services/pricing/router"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,8 +41,8 @@ func (s *APIServer) Run() error {
 	subRouter := router.Group(config.Envs.APIPath)
 
 	// create controller & handler with dependency injection
-	controller := pricing.NewController(marketConfig)
-	handler := pricing.NewHandler(controller)
+	controller := priceController.NewController(marketConfig)
+	handler := priceRouter.NewHandler(controller)
 	handler.RegisterRoutes(subRouter)
 
 	log.Println("API Server Listening on", s.addr)

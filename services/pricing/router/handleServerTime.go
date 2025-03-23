@@ -1,4 +1,4 @@
-package pricing
+package router
 
 import (
 	"fmt"

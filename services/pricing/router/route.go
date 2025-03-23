@@ -1,14 +1,16 @@
-package pricing
+package router
 
 import (
+	"pricing-app/services/pricing/controller"
+
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	controller *Contoller
+	controller *controller.Contoller
 }
 
-func NewHandler(controller *Contoller) *Handler {
+func NewHandler(controller *controller.Contoller) *Handler {
 	return &Handler{
 		controller: controller,
 	}

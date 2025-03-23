@@ -1,4 +1,4 @@
-package pricing
+package router
 
 import (
 	"net/http"
@@ -14,9 +14,10 @@ var VOLATILITY_MULTIPLE = decimal.NewFromInt32(100)
 
 func (h *Handler) hGetConfig(c *gin.Context) {
 	ticker := strings.ToUpper(c.Param("ticker"))
-	config, ok := h.controller.config[ticker]
-	if !ok {
-		services.WriteJSON(c, http.StatusBadRequest, gin.H{"message": "invalid ticker"})
+
+	config, err := h.controller.GetConfig(ticker)
+	if err != nil {
+		services.WriteJSON(c, http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -41,16 +42,15 @@ func (h *Handler) hPostConfig(c *gin.Context) {
 		return
 	}
 
-	_, ok := h.controller.config[payload.Ticker]
-	if !ok {
-		services.WriteJSON(c, http.StatusBadRequest, gin.H{"message": "invalid ticker"})
+	config, err := h.controller.GetConfig(payload.Ticker)
+	if err != nil {
+		services.WriteJSON(c, http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	config := h.controller.config[payload.Ticker]
 	config.Drift = payload.Drift.Div(DRIFT_MULTIPLE)
 	config.Volatility = payload.Volatility.Div(VOLATILITY_MULTIPLE)
-	h.controller.config[payload.Ticker] = config
+	h.controller.SetConfig(payload.Ticker, config)
 
 	services.WriteJSON(c, http.StatusCreated, gin.H{"message": "success"})
 }
