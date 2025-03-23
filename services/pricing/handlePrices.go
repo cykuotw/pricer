@@ -33,8 +33,13 @@ func (h *Handler) hGetPrices(c *gin.Context) {
 
 	now := time.Now()
 	startTime := time.Date(now.Year(), now.Month(), now.Day(), MARKET_OPEN_TIME.Hour(), MARKET_OPEN_TIME.Minute(), MARKET_OPEN_TIME.Second(), 0, time.Local)
+	closeTime := time.Date(now.Year(), now.Month(), now.Day(), MARKET_CLOSE_TIME.Hour(), MARKET_CLOSE_TIME.Minute(), MARKET_CLOSE_TIME.Second(), 0, time.Local)
+	times := make([]time.Time, tail)
+	for i, t := 0, startTime; i < tail && (t.Before(closeTime) || t.Equal(closeTime)); i, t = i+1, t.Add(1*time.Minute) {
+		times[i] = t
+	}
 
-	services.WriteJSON(c, http.StatusOK, gin.H{"ticker": ticker, "prices": prices, "t0": startTime})
+	services.WriteJSON(c, http.StatusOK, gin.H{"ticker": ticker, "prices": prices, "times": times})
 }
 
 func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
