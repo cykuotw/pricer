@@ -5,12 +5,12 @@ import { TickerProvider } from "./contexts/SelectedTickerContext";
 
 function App() {
     return (
-        <div className="flex flex-col items-center my-3 mx-5 space-y-3">
+        <div className="flex flex-col items-center mx-auto my-3 space-y-3 lg:max-w-1/2 md:max-w-2/3">
             <ServerTime></ServerTime>
 
             <TickerProvider>
-                <TickerSelector></TickerSelector>
-                <Chart></Chart>
+                <TickerSelector />
+                <Chart />
             </TickerProvider>
         </div>
     );
