@@ -71,6 +71,8 @@ Supports live price updates via Server-Sent Events (SSE).
 docker-compose up --build
 ```
 
+> **Warning:** Total image size can be up to **2.5 GB**.
+
 ### Dev Without Docker
 
 #### Start backend:
