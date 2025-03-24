@@ -9,9 +9,25 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-var DRIFT_MULTIPLE = decimal.NewFromInt32(10000)
-var VOLATILITY_MULTIPLE = decimal.NewFromInt32(100)
+var DRIFT_MULTIPLE = decimal.NewFromInt32(10000)    // Multiplier for drift values to scale them for API responses.
+var VOLATILITY_MULTIPLE = decimal.NewFromInt32(100) // Multiplier for volatility values to scale them for API responses.
 
+// hGetConfig handles the HTTP GET request to retrieve the configuration of a specific stock ticker.
+//
+// This endpoint responds with the stock's drift and volatility values, scaled for readability.
+//
+// Example response:
+//
+//	{
+//	    "ticker": "AAPL",
+//	    "config": {
+//	        "drift": 0.05,
+//	        "volatility": 0.02
+//	    }
+//	}
+//
+// Parameters:
+// - c: The Gin context for the HTTP request.
 func (h *Handler) hGetConfig(c *gin.Context) {
 	ticker := strings.ToUpper(c.Param("ticker"))
 
@@ -29,6 +45,27 @@ func (h *Handler) hGetConfig(c *gin.Context) {
 	services.WriteJSON(c, http.StatusOK, gin.H{"ticker": ticker, "config": shiftedConfig})
 }
 
+// hPostConfig handles the HTTP POST request to update the configuration of a specific stock ticker.
+//
+// This endpoint accepts a JSON payload with the stock's drift and volatility values, scales them down,
+// and updates the configuration in the controller.
+//
+// Example request payload:
+//
+//	{
+//	    "ticker": "AAPL",
+//	    "drift": 500,
+//	    "volatility": 200
+//	}
+//
+// Example response:
+//
+//	{
+//	    "message": "success"
+//	}
+//
+// Parameters:
+// - c: The Gin context for the HTTP request.
 func (h *Handler) hPostConfig(c *gin.Context) {
 	type cfg struct {
 		Ticker     string          `json:"ticker"`

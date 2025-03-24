@@ -5,6 +5,23 @@ import (
 	"pricing-app/services/types"
 )
 
+// GetConfig retrieves the configuration for a specific stock ticker.
+//
+// Parameters:
+// - ticker: The stock ticker for which the configuration is requested.
+//
+// Returns:
+// - A `config.StockConfig` object containing the stock's configuration.
+// - An error if the ticker does not exist.
+//
+// Example usage:
+//
+//	cfg, err := controller.GetConfig("AAPL")
+//	if err != nil {
+//	    log.Println("Error:", err)
+//	} else {
+//	    log.Println("Config:", cfg)
+//	}
 func (c *Contoller) GetConfig(ticker string) (config.StockConfig, error) {
 	cfg, ok := c.config[ticker]
 	if !ok {
@@ -14,6 +31,23 @@ func (c *Contoller) GetConfig(ticker string) (config.StockConfig, error) {
 	return cfg, nil
 }
 
+// SetConfig updates the configuration for a specific stock ticker.
+//
+// Parameters:
+// - ticker: The stock ticker for which the configuration is being updated.
+// - cfg: A `config.StockConfig` object containing the new configuration values.
+//
+// Returns:
+// - An error if the ticker does not exist.
+//
+// Example usage:
+//
+//	err := controller.SetConfig("AAPL", newConfig)
+//	if err != nil {
+//	    log.Println("Error:", err)
+//	} else {
+//	    log.Println("Config updated successfully.")
+//	}
 func (c *Contoller) SetConfig(ticker string, cfg config.StockConfig) error {
 	_, ok := c.config[ticker]
 	if !ok {

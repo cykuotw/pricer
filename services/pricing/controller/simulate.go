@@ -8,6 +8,15 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// simulateNextPrice calculates the next simulated price for a stock based on its configuration
+// and the previous price using a Geometric Brownian Motion model.
+//
+// Parameters:
+// - config: A `config.StockConfig` object containing the stock's drift and volatility values.
+// - prevPrice: The previous price of the stock as a `decimal.Decimal`.
+//
+// Returns:
+// - The next simulated price as a `decimal.Decimal`, rounded to 2 decimal places.
 func simulateNextPrice(config config.StockConfig, prevPrice decimal.Decimal) decimal.Decimal {
 	prev, _ := prevPrice.Float64()
 	mu, _ := config.Drift.Float64()
@@ -21,9 +30,13 @@ func simulateNextPrice(config config.StockConfig, prevPrice decimal.Decimal) dec
 	return roundedNextPrice
 }
 
+// randNorm generates a random number from a standard normal distribution
+// using the Box-Muller Transform.
+//
+// Returns:
+// - A random float64 value from a standard normal distribution.
 func randNorm() float64 {
-	// Box Muller Transform
-	// ref: https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+	// Reference: https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
 
 	u1 := rand.Float64()
 	u2 := rand.Float64()

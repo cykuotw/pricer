@@ -13,6 +13,20 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+// hGetPrices handles the HTTP GET request to retrieve historical price data for a specific stock ticker.
+//
+// This endpoint responds with the stock's historical prices and their corresponding timestamps.
+//
+// Example response:
+//
+//	{
+//	    "ticker": "AAPL",
+//	    "prices": [150.25, 151.30, 152.10],
+//	    "times": ["2025-03-24T09:30:00Z", "2025-03-24T09:31:00Z", "2025-03-24T09:32:00Z"]
+//	}
+//
+// Parameters:
+// - c: The Gin context for the HTTP request.
 func (h *Handler) hGetPrices(c *gin.Context) {
 	ticker := strings.ToUpper(c.Param("ticker"))
 
@@ -22,10 +36,10 @@ func (h *Handler) hGetPrices(c *gin.Context) {
 		return
 	}
 
-	// update the price to the latest time (minute)
+	// Update the price to the latest time (minute)
 	h.controller.UpdatePriceToLatestMin(ticker, time.Now())
 
-	// prepare response data
+	// Prepare response data
 	prices, _ := h.controller.GetHistoryData(ticker)
 
 	startTime, closeTime := h.controller.GetMarketTime()
@@ -37,6 +51,16 @@ func (h *Handler) hGetPrices(c *gin.Context) {
 	services.WriteJSON(c, http.StatusOK, gin.H{"ticker": ticker, "prices": prices, "times": times})
 }
 
+// hStreamUpdatePrice handles the HTTP GET request to stream live price updates for a specific stock ticker.
+//
+// This endpoint uses Server-Sent Events (SSE) to send real-time price updates to the client.
+//
+// Example response (SSE format):
+//
+//	data: {"ticker":"AAPL","time":"2025-03-24T09:30:00Z","price":150.25}
+//
+// Parameters:
+// - c: The Gin context for the HTTP request.
 func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
 	ticker := strings.ToUpper(c.Param("ticker"))
 	if exist := h.controller.CheckTickerExist(ticker); !exist {
@@ -75,11 +99,11 @@ func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
 		c.Writer.Flush()
 	}
 
-	// add additional 5 ms is to compensate the floating number error
+	// Add additional 5 ms is to compensate the floating number error
 	nextMinute := time.Now().Truncate(time.Minute).Add(1*time.Minute + 5*time.Millisecond)
 	delay := time.Until(nextMinute)
 
-	// align the timer to next full minute, for example 13:21:00
+	// Align the timer to next full minute, for example 13:21:00
 	select {
 	case <-time.After(delay):
 		now := time.Now()
