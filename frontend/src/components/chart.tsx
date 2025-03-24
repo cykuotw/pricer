@@ -46,7 +46,7 @@ interface MarketOpen {
 export default function Chart() {
     const { selectedTicker } = useTicker();
 
-    const [isMarketOpen, setIsMarketOpen] = useState<boolean>(false);
+    const [isMarketOpen, setIsMarketOpen] = useState<boolean>(true);
     const [prices, setPrices] = useState<number[]>([]);
     const [times, setTimes] = useState<string[]>([]);
 

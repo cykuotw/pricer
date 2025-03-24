@@ -106,7 +106,7 @@ export default function TickerSelector() {
                         );
                     })}
                 </select>
-                <div className="flex flex-col space-y-0.5 max-w-4/5">
+                <div className="flex flex-col space-y-0.5 max-w-full">
                     <label className="input">
                         <span>Drift (μ, mu):</span>
                         <input
