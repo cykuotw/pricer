@@ -16,11 +16,11 @@ func (c *Contoller) UpdatePriceToLatestMin(ticker string, now time.Time) error {
 		return nil
 	}
 
-	currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
+	currTail := getCurrentTail(now)
 	conf := c.config[ticker]
 	tail := c.historyBufferTail[ticker]
 
-	if currTail > tail {
+	if currTail > len(c.historyBuffer[ticker]) {
 		// the market is closed
 		return nil
 	}

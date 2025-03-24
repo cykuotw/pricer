@@ -59,9 +59,7 @@ func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
 		return latestPrice
 	}
 
-	// var sendData = func(t time.Time) {
 	var sendData = func(ticker string, now time.Time, latestPrice decimal.Decimal) {
-		// fmt.Printf("%s\n", t.Format(time.RFC3339Nano))
 		jsonData, err := json.Marshal(gin.H{"ticker": ticker, "time": now, "price": latestPrice})
 		if err != nil {
 			fmt.Println(err)
@@ -101,7 +99,6 @@ func (h *Handler) hStreamUpdatePrice(c *gin.Context) {
 		case t := <-timeTicker.C:
 			latestPrice := updateData(ticker, t)
 			sendData(ticker, t, latestPrice)
-			// sendData(t)
 
 		case <-c.Request.Context().Done():
 			fmt.Println("client close connection")

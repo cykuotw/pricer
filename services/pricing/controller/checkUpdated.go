@@ -11,7 +11,8 @@ func (c *Contoller) CheckPriceUpdated(ticker string, now time.Time) (bool, error
 	}
 
 	tail := c.historyBufferTail[ticker]
-	currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
 
-	return currTail == tail, nil
+	currTail := getCurrentTail(now)
+
+	return currTail == tail-1, nil
 }

@@ -29,7 +29,7 @@ func NewController(cfg config.MarketConfig) *Contoller {
 	}
 
 	// generate prices if engine start within opening hour
-	currTail := int(now.Sub(MARKET_OPEN_TIME).Minutes())
+	currTail := getCurrentTail(now)
 	if currTail > openIntervalInMinute {
 		currTail = openIntervalInMinute - 1
 	}
