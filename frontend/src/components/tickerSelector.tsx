@@ -19,6 +19,23 @@ interface UpdateConfigData {
     volatility: string;
 }
 
+/**
+ * TickerSelector component allows users to select a stock ticker and configure its drift and volatility.
+ * It fetches the list of available tickers and their configurations from the server.
+ * Users can update the drift and volatility values, which are sent back to the server.
+ *
+ * Features:
+ * - Fetches and displays a list of available tickers.
+ * - Fetches and displays the configuration (drift and volatility) for the selected ticker.
+ * - Allows users to update the configuration and sends the updates to the server.
+ *
+ * Dependencies:
+ * - React hooks: `useState`, `useEffect`
+ * - Context: `useTicker` for managing the selected ticker.
+ *
+ * @component
+ * @returns {JSX.Element} A form for selecting a ticker and configuring its drift and volatility.
+ */
 export default function TickerSelector() {
     const { selectedTicker, setSelectedTicker } = useTicker();
 
@@ -30,6 +47,7 @@ export default function TickerSelector() {
     const VOLATILITY_MULTIPLE = 100;
 
     useEffect(() => {
+        // Fetch the list of available tickers from the server
         const fetchTickerList = async () => {
             const response = await fetch(`${API_URL}/tickers`, {
                 method: "GET",
@@ -45,6 +63,7 @@ export default function TickerSelector() {
     useEffect(() => {
         if (selectedTicker.length === 0) return;
 
+        // Fetch the configuration (drift and volatility) for the selected ticker
         const fetchConfig = async (ticker: string) => {
             const response = await fetch(`${API_URL}/config/${ticker}`, {
                 method: "GET",
@@ -66,6 +85,7 @@ export default function TickerSelector() {
         )
             return;
 
+        // Send updated configuration (drift and volatility) to the server
         const fetchUpdateConfig = async (payload: UpdateConfigData) => {
             const response = await fetch(`${API_URL}/config`, {
                 method: "PUT",
@@ -90,6 +110,7 @@ export default function TickerSelector() {
     return (
         <>
             <div className="flex flex-col items-center space-y-2 max-w-1/2">
+                {/* Dropdown for selecting a ticker */}
                 <select
                     defaultValue="Pick a Ticker"
                     className="select select-neutral text-center w-max"
@@ -106,6 +127,8 @@ export default function TickerSelector() {
                         );
                     })}
                 </select>
+
+                {/* Input fields for configuring drift and volatility */}
                 <div className="flex flex-col space-y-0.5 max-w-full">
                     <label className="input">
                         <span>Drift (μ, mu):</span>

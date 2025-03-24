@@ -43,6 +43,23 @@ interface MarketOpen {
     isopen: boolean;
 }
 
+/**
+ * Chart component displays a real-time line chart of stock prices for a selected ticker.
+ * It fetches historical prices and updates the chart with live price data using Server-Sent Events (SSE).
+ *
+ * Features:
+ * - Displays historical price data for the selected ticker.
+ * - Updates the chart in real-time when the market is open.
+ * - Shows whether the market is open or closed.
+ *
+ * Dependencies:
+ * - React hooks: `useState`, `useEffect`
+ * - Chart.js for rendering the line chart
+ * - Context: `useTicker` for accessing the selected ticker
+ *
+ * @component
+ * @returns {JSX.Element} A line chart with stock prices and a header showing the market status or selected ticker.
+ */
 export default function Chart() {
     const { selectedTicker } = useTicker();
 
@@ -51,6 +68,7 @@ export default function Chart() {
     const [times, setTimes] = useState<string[]>([]);
 
     useEffect(() => {
+        // Fetch whether the market is open
         const checkMarketOpen = async () => {
             const response = await fetch(`${API_URL}/check-open`, {
                 method: "GET",
@@ -60,6 +78,7 @@ export default function Chart() {
             setIsMarketOpen(marketOpen.isopen);
         };
 
+        // Fetch historical prices for the selected ticker
         const fetchHistorPrices = async () => {
             if (selectedTicker.length === 0) return;
 
@@ -94,6 +113,7 @@ export default function Chart() {
     }, [selectedTicker]);
 
     useEffect(() => {
+        // Subscribe to live price updates via SSE when the market is open
         if (selectedTicker.length === 0 || !isMarketOpen) return;
 
         const es = new EventSource(
